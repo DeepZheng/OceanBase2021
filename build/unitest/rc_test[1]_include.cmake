@@ -1,0 +1,5 @@
+if(EXISTS "/home/deep/OceanBase2021/build/unitest/rc_test[1]_tests.cmake")
+  include("/home/deep/OceanBase2021/build/unitest/rc_test[1]_tests.cmake")
+else()
+  add_test(rc_test_NOT_BUILT rc_test_NOT_BUILT)
+endif()

@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../src/observer/rc.h
+
+/home/deep/OceanBase2021/unitest/rc_test.cpp
+rc.h
+/home/deep/OceanBase2021/unitest/rc.h
+iostream
+-
+

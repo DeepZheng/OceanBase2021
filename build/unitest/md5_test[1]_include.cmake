@@ -1,0 +1,5 @@
+if(EXISTS "/home/deep/OceanBase2021/build/unitest/md5_test[1]_tests.cmake")
+  include("/home/deep/OceanBase2021/build/unitest/md5_test[1]_tests.cmake")
+else()
+  add_test(md5_test_NOT_BUILT md5_test_NOT_BUILT)
+endif()
