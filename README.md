@@ -20,15 +20,22 @@ zjh&amp;hbh&amp;hyt 2021 OceanBase Contest
 
 仓库中环境已经配置好了，第一次 clone 时可以将整个仓库都拉下来，后面同步更新时只需要拉取 src 源代码文件夹即可
 
-```git
-$ git fetch
-$ git checkout -m src
+需要对本仓库进行修改，请将本仓库 fork 到自己的账户
+
+然后在本地执行 git clone + 自己仓库的链接
+
+clone 后执行一次 git pull
+
+每次执行更改之后，将代码上传到自己的仓库中
 ```
-
-提交时，请勿将整个代码库全部上传，同样只需上传 src 文件夹即可
-
-```git
 $ git add src
 $ git commit -m "更新信息"
-$ git push origin main
+$ git push 
+```
+
+最后在github 网页中 pull request 提交更改
+
+当需要从主仓库获取最新更新代码时，执行 pull 操作如下
+```
+$ git pull upstream main
 ```
