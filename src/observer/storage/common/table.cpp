@@ -15,6 +15,7 @@ See the Mulan PSL v2 for more details. */
 #include <limits.h>
 #include <string.h>
 #include <algorithm>
+#include <cstdio>
 
 #include "storage/common/table.h"
 #include "storage/common/table_meta.h"
@@ -45,7 +46,33 @@ Table::~Table() {
 
   LOG_INFO("Table has been closed: %s", name());
 }
+/*
+  by DeepZheng 10/18
+*/
+RC Table::drop(const char * base_dir,const char *table_name){
+  RC rc = RC::SUCCESS;
+  //删除.data文件
+  std::string data_file = std::string(base_dir) + "/" + table_name + TABLE_DATA_SUFFIX;
+  if(remove(data_file.c_str()) != 0){
+        LOG_ERROR("Failed to drop table %s file %s",table_name,data_file.c_str());
+        rc =  RC::GENERIC_ERROR;
+  }else{
+        LOG_INFO("Drop table %s successfully",table_name);
+        rc = RC::SUCCESS;
+  }   
+  if(rc != RC::SUCCESS) return rc;
 
+  //删除 .table 文件
+  std::string table_file = std::string(base_dir) + "/" + table_name + TABLE_META_SUFFIX;
+  if(remove(table_file.c_str()) != 0){
+        LOG_ERROR("Failed to drop table %s",table_name);
+        rc =  RC::GENERIC_ERROR;
+  }else{
+        LOG_INFO("Drop table %s successfully",table_name);
+        rc = RC::SUCCESS;
+  }   
+  return rc;
+}
 RC Table::create(const char *path, const char *name, const char *base_dir, int attribute_count, const AttrInfo attributes[]) {
 
   if (nullptr == name || common::is_blank(name)) {

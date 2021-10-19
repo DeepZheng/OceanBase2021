@@ -161,6 +161,16 @@ void DefaultStorageStage::handle_event(StageEvent *event) {
   char response[256];
   switch (sql->flag)
   {
+  /*
+  by DeepZheng 10/17
+  */
+  case SCF_DROP_TABLE: { // drop table
+      const DropTable &droptable = sql->sstr.drop_table;
+      const char *table_name = droptable.relation_name;
+      rc = handler_->drop_table(current_db, table_name);
+      snprintf(response, sizeof(response), "%s\n", rc == RC::SUCCESS ? "SUCCESS" : "FAILURE");
+    }
+    break;
   case SCF_INSERT: { // insert into
       const Inserts &inserts = sql->sstr.insertion;
       const char *table_name = inserts.relation_name;

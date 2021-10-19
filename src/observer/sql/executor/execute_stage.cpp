@@ -179,6 +179,7 @@ void ExecuteStage::handle_request(common::StageEvent *event) {
     case SCF_HELP: {
       const char *response = "show tables;\n"
           "desc `table name`;\n"
+          "drop table 't';\n"
           "create table `table name` (`column name` `column type`, ...);\n"
           "create index `index name` on `table` (`column`);\n"
           "insert into `table` values(`value1`,`value2`);\n"

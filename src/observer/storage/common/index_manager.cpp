@@ -14,22 +14,50 @@ See the Mulan PSL v2 for more details. */
 #include "storage/common/index_manager.h"
 #include "rc.h"
 
+
+/**
+ * 此函数创建一个名为fileName的索引。
+ * attrType描述被索引属性的类型，attrLength描述被索引属性的长度
+ * @param fileName
+ * @param attrType
+ * @param attrLength
+ * @return
+ */
 RC createIndex(const char *fileName, AttrType attrType, int attrLength) {
 
   //TODO
   return RC::SUCCESS;
 }
-
+/**
+ * 打开名为fileName的索引文件。
+ * 如果方法调用成功，则indexHandle为指向被打开的索引句柄的指针。
+ * 索引句柄用于在索引中插入或删除索引项，也可用于索引的扫描
+ * @param fileName
+ * @param indexHandle
+ * @return
+ */
 RC openIndex(const char *fileName, IndexHandle *indexHandle) {
   //TODO
   return RC::SUCCESS;
 }
-
+/**
+ * 关闭句柄indexHandle对应的索引文件
+ * @param indexHandle
+ * @return
+ */
 RC closeIndex(IndexHandle *indexHandle) {
   //TODO
   return RC::SUCCESS;
 }
-
+/**
+ * 此函数向IndexHandle对应的索引中插入一个索引项。
+ * 参数pData指向要插入的属性值，参数rid标识该索引项对应的元组，
+ * 即向索引中插入一个值为（*pData，rid）的键值对
+ * @param indexHandle
+ * @param data
+ * @param rid
+ * @return
+ */
 RC insertEntry(IndexHandle *indexHandle, void *data, const RID *rid) {
   //TODO
   return RC::SUCCESS;
@@ -56,6 +84,13 @@ RC closeIndexScan(IndexScan *indexScan) {
   return RC::SUCCESS;
 }
 
+/**
+ * 获取由fileName指定的B+树索引内容，返回指向B+树的指针。
+ * 此函数提供给测试程序调用，用于检查B+树索引内容的正确性
+ * @param fileName
+ * @param index
+ * @return
+ */
 RC getIndexTree(char *fileName, Tree *index) {
   //TODO
   return RC::SUCCESS;

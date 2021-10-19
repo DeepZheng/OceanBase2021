@@ -126,8 +126,17 @@ RC DefaultHandler::create_table(const char *dbname, const char *relation_name, i
   }
   return db->create_table(relation_name, attribute_count, attributes);
 }
-
+/*
+  by DeepZheng 10/18
+*/
 RC DefaultHandler::drop_table(const char *dbname, const char *relation_name) {
+  Db *db = find_db(dbname);
+  Table *table = db->find_table(relation_name);
+  if(table == nullptr){
+    return RC::SCHEMA_TABLE_NOT_EXIST;
+  }else{
+    return db->drop_table(relation_name);
+  }
   return RC::GENERIC_ERROR;
 }
 

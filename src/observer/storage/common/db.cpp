@@ -70,6 +70,23 @@ RC Db::create_table(const char *table_name, int attribute_count, const AttrInfo 
   LOG_INFO("Create table success. table name=%s", table_name);
   return RC::SUCCESS;
 }
+/* 
+by DeepZheng 10/18
+*/
+RC Db :: drop_table(const char *table_name){
+  RC rc = RC :: SUCCESS;
+  std::string table_file_path = table_meta_file(path_.c_str(), table_name); // 文件路径可以移到Table模块
+  Table * table = find_table(table_name);
+  rc = table->drop(path_.c_str(), table_name);
+  if(rc == RC :: SUCCESS){
+    //从open-tables哈希表中删除
+    //并调用析构函数
+    opened_tables_.erase(table_name);
+    delete table;
+    return RC :: SUCCESS;
+  }
+  else return rc;
+};
 
 Table *Db::find_table(const char *table_name) const {
   std::unordered_map<std::string, Table *>::const_iterator iter = opened_tables_.find(table_name);
@@ -78,6 +95,8 @@ Table *Db::find_table(const char *table_name) const {
   }
   return nullptr;
 }
+
+
 
 RC Db::open_all_tables() {
   std::vector<std::string> table_meta_files;
