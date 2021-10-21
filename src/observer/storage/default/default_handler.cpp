@@ -182,8 +182,18 @@ RC DefaultHandler::update_record(Trx *trx, const char *dbname, const char *relat
   if (nullptr == table) {
     return RC::SCHEMA_TABLE_NOT_EXIST;
   }
+  //by DeepZheng 10/21
+  //从上面delete复制的
+  //relation_name 表名
+  //attribute_name 更改列名
 
-  return table->update_record(trx, attribute_name, value, condition_num, conditions, updated_count);
+  CompositeConditionFilter condition_filter;
+  RC rc = condition_filter.init(*table, conditions, condition_num);
+  if (rc != RC::SUCCESS) {
+    return rc;
+  }
+  //LOG_INFO("INFO :%s AND %s",relation_name,attribute_name);
+  return table->update_record(trx, attribute_name, value, &condition_filter, updated_count);
 }
 
 Db *DefaultHandler::find_db(const char *dbname) const {

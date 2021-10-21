@@ -314,12 +314,10 @@ RC create_selection_executor(Trx *trx, const Selects &selects, const char *db, c
     if (nullptr == attr.relation_name || 0 == strcmp(table_name, attr.relation_name)) {
       if (0 == strcmp("*", attr.attribute_name)) {
         // 列出这张表所有字段
-        LOG_WARN("ssss");
         TupleSchema::from_table(table, schema);
         break; // 没有校验，给出* 之后，再写字段的错误
       } else {
         // 列出这张表相关字段
-        if()
         RC rc = schema_add_field(table, attr.attribute_name, schema);
         if (rc != RC::SUCCESS) {
           return rc;

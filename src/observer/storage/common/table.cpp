@@ -354,6 +354,8 @@ private:
   void (*record_reader_)(const char *, void *);
   void *context_;
 };
+
+
 static RC scan_record_reader_adapter(Record *record, void *context) {
   RecordReaderScanAdapter &adapter = *(RecordReaderScanAdapter *)context;
   adapter.consume(record);
@@ -546,9 +548,80 @@ RC Table::create_index(Trx *trx, const char *index_name, const char *attribute_n
   return rc;
 }
 
-RC Table::update_record(Trx *trx, const char *attribute_name, const Value *value, int condition_num, const Condition conditions[], int *updated_count) {
-  
-  return RC::GENERIC_ERROR;
+/*by DeepZheng 10/21
+update
+*/
+class RecordUpdater {
+public:
+  RecordUpdater(Table &table, Trx *trx,const char *attribute_name, const Value *value) 
+    : table_(table), trx_(trx), attribute_name_(attribute_name), value_(value) {
+  }
+
+  RC update_record(Record *record) {
+    RC rc = RC::SUCCESS;
+    rc = table_.update_record(trx_, record,attribute_name_, value_);
+    if (rc == RC::SUCCESS) {
+      updated_count_++;
+    }
+    return rc;
+  }
+
+  int updated_count() const {
+    return updated_count_;
+  }
+
+private:
+  Table & table_;
+  Trx *trx_;
+  const char *attribute_name_;
+  const Value *value_;
+  int updated_count_ = 0;
+};
+
+static RC record_reader_update_adapter(Record *record, void *context) {
+  RecordUpdater &record_updater = *(RecordUpdater *)context;
+  return record_updater.update_record(record);
+}
+
+RC Table::update_record(Trx *trx, const char *attribute_name, const Value *value, ConditionFilter *filter, int *updated_count) {
+  RecordUpdater updater(*this, trx,attribute_name,value);
+  RC rc = scan_record(trx, filter,-1,&updater, record_reader_update_adapter);
+  //scan_record(trx, filter, -1, &deleter, record_reader_delete_adapter);
+  if (updated_count != nullptr) {
+    *updated_count = updater.updated_count();
+  }
+  return rc;
+}
+
+RC Table::update_record(Trx *trx, Record *record,const char *attribute_name, const Value *value) {
+  RC rc = RC::SUCCESS; 
+  if (attribute_name == nullptr || common::is_blank(attribute_name)) {
+    return RC::INVALID_ARGUMENT;
+  }
+  const FieldMeta *field = table_meta_.field(attribute_name);
+  if (!field) {
+    return RC::SCHEMA_FIELD_MISSING;
+  }
+  if(field->type() != value->type){
+    LOG_ERROR("Invalid value type. field name=%s, type=%d, but given=%d",
+        field->name(), field->type(), value->type);
+    return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+  }
+
+  // 修改该字段的值
+  int record_size = table_meta_.record_size();
+  char *record_out = new char [record_size];
+  const FieldMeta *field_start = table_meta_.field(0);
+  /*
+  for(int i = 0; i < field->len();i++){
+    record->data[i + field->offset()] = value->data[i];
+  }*/
+  memcpy(record_out , record->data, field->offset());
+  memcpy(record_out + field->offset(), value->data, field->len());
+  memcpy(record_out + field->offset() + field->len(), record->data + field->offset() + field->len(),record_size -field->offset() - field->len() );
+  record->data = record_out;
+  rc = record_handler_->update_record(record);
+  return rc;
 }
 
 class RecordDeleter {
