@@ -303,6 +303,10 @@ static RC schema_add_field(Table *table, const char *field_name, TupleSchema &sc
 RC create_selection_executor(Trx *trx, const Selects &selects, const char *db, const char *table_name, SelectExeNode &select_node) {
   // 列出跟这张表关联的Attr
   TupleSchema schema;
+  if(table_name == ""){
+    LOG_WARN("No table name");
+    return RC::SCHEMA_TABLE_NOT_EXIST;
+  } 
   Table * table = DefaultHandler::get_default().find_table(db, table_name);
   if (nullptr == table) {
     LOG_WARN("No such table [%s] in db [%s]", table_name, db);

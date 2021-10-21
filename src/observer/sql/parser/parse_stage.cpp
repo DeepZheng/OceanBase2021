@@ -111,23 +111,22 @@ void ParseStage::callback_event(StageEvent *event, CallbackContext *context) {
 StageEvent *ParseStage::handle_request(StageEvent *event) {
   SQLStageEvent *sql_event = static_cast<SQLStageEvent *>(event);
   const std::string &sql = sql_event->get_sql();
-  
   Query *result = query_create();
   if (nullptr == result) {
     LOG_ERROR("Failed to create query.");
     return nullptr;
   }
-
   RC ret = parse(sql.c_str(), result);
+  //LOG_INFO("Failed.");
   if (ret != RC::SUCCESS) {
     // set error information to event
-    const char *error = result->sstr.errors != nullptr ? result->sstr.errors : "Unknown error";
-    char response[256];
-    snprintf(response, sizeof(response), "Failed to parse sql: %s, error msg: %s\n", sql.c_str(), error);
-    sql_event->session_event()->set_response(response);
+    //const char *error = result->sstr.errors != nullptr ? result->sstr.errors : "Unknown error";
+    //char response[256];
+    //snprintf(response, sizeof(response), "Failed to parse sql: %s, error msg: %s\n", sql.c_str(), error);
+    sql_event->session_event()->set_response("FAILURE\n");
     query_destroy(result);
     return nullptr;
   }
-
+  
   return new ExecutionPlanEvent(sql_event, result);
 }
