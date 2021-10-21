@@ -123,7 +123,8 @@ void ExecuteStage::handle_request(common::StageEvent *event) {
 
   switch (sql->flag) {
     case SCF_SELECT: { // select
-      do_select(current_db, sql, exe_event->sql_event()->session_event());
+      RC rc =  do_select(current_db, sql, exe_event->sql_event()->session_event());
+      //session_event->set_response(strrc(rc));
       exe_event->done_immediate();
     }
     break;
@@ -229,11 +230,14 @@ RC ExecuteStage::do_select(const char *db, Query *sql, SessionEvent *session_eve
     SelectExeNode *select_node = new SelectExeNode;
     rc = create_selection_executor(trx, selects, db, table_name, *select_node);
     if (rc != RC::SUCCESS) {
+      char response[20];
+      snprintf(response, sizeof(response), "%s\n", "FAILURE");
       delete select_node;
       for (SelectExeNode *& tmp_node: select_nodes) {
         delete tmp_node;
       }
       end_trx_if_need(session, trx, false);
+      session_event->set_response(response);
       return rc;
     }
     select_nodes.push_back(select_node);
@@ -310,10 +314,12 @@ RC create_selection_executor(Trx *trx, const Selects &selects, const char *db, c
     if (nullptr == attr.relation_name || 0 == strcmp(table_name, attr.relation_name)) {
       if (0 == strcmp("*", attr.attribute_name)) {
         // 列出这张表所有字段
+        LOG_WARN("ssss");
         TupleSchema::from_table(table, schema);
         break; // 没有校验，给出* 之后，再写字段的错误
       } else {
         // 列出这张表相关字段
+        if()
         RC rc = schema_add_field(table, attr.attribute_name, schema);
         if (rc != RC::SUCCESS) {
           return rc;
