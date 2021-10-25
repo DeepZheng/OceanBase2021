@@ -52,6 +52,17 @@ void value_init_string(Value *value, const char *v) {
   value->type = CHARS;
   value->data = strdup(v);
 }
+void value_init_date(Value *value, const char *v) {
+  //LOG_INFO("init date :%s",v);
+  value->type = DATES;
+  value->data = strdup(v);
+  /*
+  void* date_data = const_cast<void*>(value->data);
+  LOG_INFO("sss %s",date_data);
+  const char *date = static_cast<const char *>(value->data);
+  LOG_INFO("after %s",date);
+  */
+}
 void value_destroy(Value *value) {
   value->type = UNDEFINED;
   free(value->data);
@@ -92,7 +103,11 @@ void condition_destroy(Condition *condition) {
 void attr_info_init(AttrInfo *attr_info, const char *name, AttrType type, size_t length) {
   attr_info->name = strdup(name);
   attr_info->type = type;
-  attr_info->length = length;
+  if(type == DATES){
+    attr_info->length = 11;
+  }else{
+    attr_info->length = length;
+  }
 }
 void attr_info_destroy(AttrInfo *attr_info) {
   free(attr_info->name);

@@ -253,7 +253,7 @@ RC Table::insert_record(Trx *trx, Record *record) {
   }
   return rc;
 }
-RC Table::insert_record(Trx *trx, int value_num, const Value *values) {
+RC Table::insert_record(Trx *trx, int value_num,const Value *values) {
   if (value_num <= 0 || nullptr == values ) {
     LOG_ERROR("Invalid argument. value num=%d, values=%p", value_num, values);
     return RC::INVALID_ARGUMENT;
@@ -282,35 +282,106 @@ const TableMeta &Table::table_meta() const {
   return table_meta_;
 }
 
+RC judge_record_date(int year, int month, int day){
+    if(year < 1970 || year > 2040 || month < 1 || month > 12 || day < 1 || day > 31) {
+        return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+    }
+ 
+    switch (month) {
+    case 4:
+    case 6:
+    case 9:
+    case 11:
+        if (day > 30) {   // 4.6.9.11月天数不能大于30
+            return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+        }
+        break;
+    case 2: 
+        {
+            bool bLeapYear = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+            if ((bLeapYear && day > 29) || (!bLeapYear && day > 28)) {
+                // 闰年2月不能大于29天;平年2月不能大于28天
+                return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+            }
+        }
+        break;
+    default:
+        break;
+    }
+ 
+    return RC::SUCCESS;
+}
+
 RC Table::make_record(int value_num, const Value *values, char * &record_out) {
   // 检查字段类型是否一致
   if (value_num + table_meta_.sys_field_num() != table_meta_.field_num()) {
     return RC::SCHEMA_FIELD_MISSING;
   }
-
+  RC rc = RC::SUCCESS;
+    // 复制所有字段的值
+  int record_size = table_meta_.record_size();
+  char *record = new char [record_size];
   const int normal_field_start_index = table_meta_.sys_field_num();
+  
   for (int i = 0; i < value_num; i++) {
     const FieldMeta *field = table_meta_.field(i + normal_field_start_index);
-    const Value &value = values[i];
+    Value value = values[i];
     if (field->type() != value.type) {
       LOG_ERROR("Invalid value type. field name=%s, type=%d, but given=%d",
         field->name(), field->type(), value.type);
       return RC::SCHEMA_FIELD_TYPE_MISMATCH;
     }
+
+    if(field->type() == DATES){
+      LOG_TRACE("DATE");
+      //LOG_INFO("before transfrom :%s",value.data);
+      //void* date_data = const_cast<void*>(value.data);
+      //char* date_data = new char [10];
+      //memcpy(date_data, value.data,field->len());
+      //std::string date(date_data);
+      const char *date_c = static_cast<const char* >(value.data);
+      //std::string date = *(std::string*)(value.data);
+      //char * date_data = const_cast<char*>(date_c);
+      //LOG_INFO("date_data %s", date_data);
+      std::string date (date_c);
+      
+      LOG_INFO("date %s", date.c_str());
+      //common::strip(date);
+      //const char *date = static_cast<const char* >(value.data);
+      std::stringstream deserialize_stream;
+      deserialize_stream.clear();
+      deserialize_stream.str(date);
+      LOG_INFO("JUDGE");
+        int cnt = 0;
+        std::string YY ;
+        std::string MM ;
+        std::string DD ;
+        std::string data;
+        while(std::getline(deserialize_stream, data,'-')){
+          LOG_INFO("%s",data.c_str());
+          if(cnt == 0)  YY = data;
+          if(cnt == 1)  MM = data;
+          if(cnt == 2)  DD = data;
+          if(cnt == 3)  break;
+          cnt ++;
+        }
+        LOG_INFO ("input date :%s - %s - %s",YY,MM,DD);         
+        rc = judge_record_date(atoi(YY.c_str()),atoi(MM.c_str()),atoi(DD.c_str()));
+        if(rc == RC::SUCCESS){
+          if(MM.length() == 1)  MM = "0" + MM;
+          if(DD.length() == 1)  DD = "0" + DD;
+          date = YY + "-" + MM + "-" + DD;
+          //value.data = strdup(date.c_str());
+          memcpy(record + field->offset(), date.c_str(), field->len());
+        }else{
+          return rc;
+        }
+    }else{
+      memcpy(record + field->offset(), value.data, field->len());
+    }
   }
-
-  // 复制所有字段的值
-  int record_size = table_meta_.record_size();
-  char *record = new char [record_size];
-
-  for (int i = 0; i < value_num; i++) {
-    const FieldMeta *field = table_meta_.field(i + normal_field_start_index);
-    const Value &value = values[i];
-    memcpy(record + field->offset(), value.data, field->len());
-  }
-
   record_out = record;
-  return RC::SUCCESS;
+  return rc;
 }
 
 RC Table::init_record_handler(const char *base_dir) {

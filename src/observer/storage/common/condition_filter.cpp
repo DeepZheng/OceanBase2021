@@ -13,6 +13,7 @@ See the Mulan PSL v2 for more details. */
 //
 
 #include <stddef.h>
+#include <sstream>
 #include "condition_filter.h"
 #include "record_manager.h"
 #include "common/log/log.h"
@@ -40,7 +41,7 @@ DefaultConditionFilter::~DefaultConditionFilter()
 
 RC DefaultConditionFilter::init(const ConDesc &left, const ConDesc &right, AttrType attr_type, CompOp comp_op)
 {
-  if (attr_type < CHARS || attr_type > FLOATS) {
+  if (attr_type < CHARS || attr_type > DATES) {
     LOG_ERROR("Invalid condition with unsupported attribute type: %d", attr_type);
     return RC::INVALID_ARGUMENT;
   }
@@ -145,6 +146,42 @@ bool DefaultConditionFilter::filter(const Record &rec) const
     case CHARS: {  // 字符串都是定长的，直接比较
       // 按照C字符串风格来定
       cmp_result = strcmp(left_value, right_value);
+    } break;
+    case DATES: {  // 日期字符串都是都是定长的，取出YY MM DD 进行比较
+      // 按照C字符串风格来定
+      std::string date_left = left_value;
+      std::string date_right = right_value;
+
+      std::stringstream deserialize_stream;
+      deserialize_stream.clear();
+      deserialize_stream.str(date_left);
+      //left
+      int cnt = 0;
+      int left_day = 0;
+      std::string data;
+      while(std::getline(deserialize_stream, data,'-')){
+        //LOG_INFO("left%s",data.c_str());
+        if(cnt == 0)  left_day += (atoi(data.c_str()) - 1970) * 365;
+        if(cnt == 1)  left_day += atoi(data.c_str()) * 30;
+        if(cnt == 2)  left_day += atoi(data.c_str());
+        if(cnt == 3)  break;
+        cnt ++;
+      }   
+      cnt = 0;
+      deserialize_stream.clear();
+      deserialize_stream.str(date_right);
+      int right_day = 0;
+      while(std::getline(deserialize_stream, data,'-')){
+        //LOG_INFO("right%s",data.c_str());
+        if(cnt == 0)  right_day += (atoi(data.c_str()) - 1970) * 365;
+        if(cnt == 1)  right_day += atoi(data.c_str()) * 30;
+        if(cnt == 2)  right_day += atoi(data.c_str());
+        if(cnt == 3)  break;
+        cnt ++;
+      }
+      //判断
+      cmp_result = left_day - right_day;
+      LOG_INFO("left:%d right : %d",left_day, right_day);
     } break;
     case INTS: {
       // 没有考虑大小端问题

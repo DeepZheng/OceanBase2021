@@ -281,6 +281,37 @@ void DefaultStorageStage::callback_event(StageEvent *event,
   return;
 }
 
+
+RC judge_date(int year, int month, int day){
+    if(year < 1970 || year > 2040 || month < 1 || month > 12 || day < 1 || day > 31) {
+        return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+    }
+ 
+    switch (month) {
+    case 4:
+    case 6:
+    case 9:
+    case 11:
+        if (day > 30) {   // 4.6.9.11月天数不能大于30
+            return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+        }
+        break;
+    case 2: 
+        {
+            bool bLeapYear = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
+            if ((bLeapYear && day > 29) || (!bLeapYear && day > 28)) {
+                // 闰年2月不能大于29天;平年2月不能大于28天
+                return RC::SCHEMA_FIELD_TYPE_MISMATCH;
+            }
+        }
+        break;
+    default:
+        break;
+    }
+ 
+    return RC::SUCCESS;
+}
+
 /**
  * 从文件中导入数据时使用。尝试向表中插入解析后的一行数据。
  * @param table  要导入的表
@@ -343,6 +374,38 @@ RC insert_record_from_file(Table *table, std::vector<std::string> &file_values,
       break;
       case CHARS: {
         value_init_string(&record_values[i], file_value.c_str());
+      }
+      case DATES: {
+        //value_init_date(&record_values[i], file_value.c_str());
+        //对日期进行判断是否合法
+        deserialize_stream.clear();
+        deserialize_stream.str(file_value);
+        if (!deserialize_stream || !deserialize_stream.eof()) {
+          errmsg << "need a date but got '" << file_values[i] 
+              << "'(field index:" << i << ")"; 
+          rc = RC::SCHEMA_FIELD_TYPE_MISMATCH;
+        }else{
+          LOG_TRACE("HEHE");
+          int cnt = 0;
+          std::string YY = 0;
+          std::string MM = 0;
+          std::string DD = 0;
+          std::string data;
+          while(std::getline(deserialize_stream, data,'-')){
+            if(cnt == 0)  YY = data;
+            if(cnt == 1)  MM = data;
+            if(cnt == 2)  DD = data;
+            cnt ++;
+          }
+          LOG_INFO ("input date :%s - %s - %s",YY,MM,DD);         
+          rc = judge_date(atoi(YY.c_str()),atoi(MM.c_str()),atoi(DD.c_str()));
+          if(rc == RC::SUCCESS){
+            if(MM.length() == 1)  MM = "0" + MM;
+            if(DD.length() == 1)  DD = "0" + DD;
+            file_value = YY + "-" + MM + "-" + DD;
+            value_init_date(&record_values[i], file_value.c_str());
+          }        
+        }     
       }
       break;
       default: {
