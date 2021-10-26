@@ -358,7 +358,7 @@ RC Table::make_record(int value_num, const Value *values, char * &record_out) {
         std::string DD ;
         std::string data;
         while(std::getline(deserialize_stream, data,'-')){
-          LOG_INFO("%s",data.c_str());
+          //LOG_INFO("%s",data.c_str());
           if(cnt == 0)  YY = data;
           if(cnt == 1)  MM = data;
           if(cnt == 2)  DD = data;

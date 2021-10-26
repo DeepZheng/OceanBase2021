@@ -380,12 +380,7 @@ RC insert_record_from_file(Table *table, std::vector<std::string> &file_values,
         //对日期进行判断是否合法
         deserialize_stream.clear();
         deserialize_stream.str(file_value);
-        if (!deserialize_stream || !deserialize_stream.eof()) {
-          errmsg << "need a date but got '" << file_values[i] 
-              << "'(field index:" << i << ")"; 
-          rc = RC::SCHEMA_FIELD_TYPE_MISMATCH;
-        }else{
-          LOG_TRACE("HEHE");
+          //LOG_TRACE("HEHE");
           int cnt = 0;
           std::string YY = 0;
           std::string MM = 0;
@@ -404,8 +399,7 @@ RC insert_record_from_file(Table *table, std::vector<std::string> &file_values,
             if(DD.length() == 1)  DD = "0" + DD;
             file_value = YY + "-" + MM + "-" + DD;
             value_init_date(&record_values[i], file_value.c_str());
-          }        
-        }     
+          }             
       }
       break;
       default: {
