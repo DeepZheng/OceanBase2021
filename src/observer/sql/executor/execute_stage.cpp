@@ -315,6 +315,7 @@ RC create_selection_executor(Trx *trx, const Selects &selects, const char *db, c
 
   for (int i = selects.attr_num - 1; i >= 0; i--) {
     const RelAttr &attr = selects.attributes[i];
+    //LOG_INFO("attr %s",attr.attribute_name);
     if (nullptr == attr.relation_name || 0 == strcmp(table_name, attr.relation_name)) {
       if (0 == strcmp("*", attr.attribute_name)) {
         // 列出这张表所有字段

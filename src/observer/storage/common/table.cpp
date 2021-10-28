@@ -331,7 +331,7 @@ RC Table::make_record(int value_num, const Value *values, char * &record_out) {
         field->name(), field->type(), value.type);
       return RC::SCHEMA_FIELD_TYPE_MISMATCH;
     }
-
+    LOG_INFO("make %s %d",value.data,field->len());
     if(field->type() == DATES){
       LOG_TRACE("DATE");
       //LOG_INFO("before transfrom :%s",value.data);
@@ -372,14 +372,17 @@ RC Table::make_record(int value_num, const Value *values, char * &record_out) {
           if(DD.length() == 1)  DD = "0" + DD;
           date = YY + "-" + MM + "-" + DD;
           //value.data = strdup(date.c_str());
+           //LOG_INFO("make %s %d",value.data,field->len());
           memcpy(record + field->offset(), date.c_str(), field->len());
         }else{
           return rc;
         }
     }else{
+      //LOG_INFO("make %s %d",value.data,field->len());
       memcpy(record + field->offset(), value.data, field->len());
     }
   }
+  //LOG_INFO("make %s ",record);
   record_out = record;
   return rc;
 }
