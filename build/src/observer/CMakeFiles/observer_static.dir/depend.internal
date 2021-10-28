@@ -9,7 +9,6 @@ src/observer/CMakeFiles/observer_static.dir/sql/parser/yacc_sql.tab.c.o
  ../src/observer/sql/parser/parse_defs.h
  ../src/observer/sql/parser/yacc_sql.tab.h
  /home/deep/OceanBase2021/src/observer/sql/parser/yacc_sql.tab.c
- /home/deep/OceanBase2021/src/observer/sql/parser/yacc_sql.tab.h
 src/observer/CMakeFiles/observer_static.dir/event/execution_plan_event.cpp.o
  ../deps/common/defs.h
  ../deps/common/seda/stage_event.h

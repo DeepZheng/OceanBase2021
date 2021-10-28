@@ -8,7 +8,6 @@ src/observer/CMakeFiles/observer_static.dir/sql/parser/yacc_sql.tab.c.o: ../src/
 src/observer/CMakeFiles/observer_static.dir/sql/parser/yacc_sql.tab.c.o: ../src/observer/sql/parser/parse_defs.h
 src/observer/CMakeFiles/observer_static.dir/sql/parser/yacc_sql.tab.c.o: ../src/observer/sql/parser/yacc_sql.tab.h
 src/observer/CMakeFiles/observer_static.dir/sql/parser/yacc_sql.tab.c.o: ../src/observer/sql/parser/yacc_sql.tab.c
-src/observer/CMakeFiles/observer_static.dir/sql/parser/yacc_sql.tab.c.o: ../src/observer/sql/parser/yacc_sql.tab.h
 
 src/observer/CMakeFiles/observer_static.dir/event/execution_plan_event.cpp.o: ../deps/common/defs.h
 src/observer/CMakeFiles/observer_static.dir/event/execution_plan_event.cpp.o: ../deps/common/seda/stage_event.h
