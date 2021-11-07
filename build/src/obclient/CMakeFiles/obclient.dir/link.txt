@@ -1,1 +1,0 @@
-/usr/bin/c++   -Wall -DCMAKE_EXPORT_COMPILE_COMMANDS=1  -O2 -g    CMakeFiles/obclient.dir/client.cpp.o  -o ../../bin/obclient   -L/usr/local/lib  -L/home/deep/OceanBase2021/build/src/obclient/../../lib  -Wl,-rpath,/usr/local/lib:/home/deep/OceanBase2021/build/src/obclient/../../lib:/home/deep/OceanBase2021/build/lib: ../../lib/libcommon.so.1.0.0 -lpthread -ldl 

@@ -1,5 +1,0 @@
-if(EXISTS "/home/deep/OceanBase2021/build/unitest/pidfile_test[1]_tests.cmake")
-  include("/home/deep/OceanBase2021/build/unitest/pidfile_test[1]_tests.cmake")
-else()
-  add_test(pidfile_test_NOT_BUILT pidfile_test_NOT_BUILT)
-endif()
