@@ -282,7 +282,7 @@ const TableMeta &Table::table_meta() const {
   return table_meta_;
 }
 
-RC judge_record_date(int year, int month, int day){
+RC Table ::judge_record_date(int year, int month, int day){
     if(year < 1970 || year > 2040 || month < 1 || month > 12 || day < 1 || day > 31) {
         return RC::SCHEMA_FIELD_TYPE_MISMATCH;
     }

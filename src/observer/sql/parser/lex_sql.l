@@ -29,7 +29,12 @@ ID               [A-Za-z_]+[A-Za-z0-9_]*
 DOT              \.
 QUOTE            [\'\"]
 %x STR
-
+LBRACE			"("
+RBRACE			")"
+MAX				[Mm][Aa][Xx]
+MIN				[Mm][Ii][Nn]
+COUNT			[Cc][Oo][Uu][Nn][Tt]
+AVG				[Aa][Vv][Gg]					
 %%
 
 {WHITE_SAPCE}                           // ignore whitespace
@@ -72,9 +77,14 @@ QUOTE            [\'\"]
 [Ll][Oo][Aa][Dd]			                   RETURN_TOKEN(LOAD);
 [Dd][Aa][Tt][Aa]	                       RETURN_TOKEN(DATA);
 [Ii][Nn][Ff][Ii][Ll][Ee]                 RETURN_TOKEN(INFILE);
+
+{MAX}									RETURN_TOKEN(MAX);
+{MIN}									RETURN_TOKEN(MIN);
+{COUNT}									RETURN_TOKEN(COUNT);
+{AVG}									RETURN_TOKEN(AVG);			
 {ID}							                       yylval->string=strdup(yytext); RETURN_TOKEN(ID);
-"("								                       RETURN_TOKEN(LBRACE);
-")"								                       RETURN_TOKEN(RBRACE);
+{LBRACE}								                       RETURN_TOKEN(LBRACE);
+{RBRACE}								                       RETURN_TOKEN(RBRACE);
 
 ","                                      RETURN_TOKEN(COMMA);
 "="                                      RETURN_TOKEN(EQ);

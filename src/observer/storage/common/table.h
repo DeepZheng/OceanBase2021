@@ -54,7 +54,7 @@ public:
   RC update_record(Trx *trx, const char *attribute_name, const Value *value, ConditionFilter *filter, int *updated_count);
   RC update_record(Trx *trx, Record *record,const char *attribute_name, const Value *value);
   RC delete_record(Trx *trx, ConditionFilter *filter, int *deleted_count);
-
+  static RC  judge_record_date(int year, int month, int day);
   RC scan_record(Trx *trx, ConditionFilter *filter, int limit, void *context, void (*record_reader)(const char *data, void *context));
 
   RC create_index(Trx *trx, const char *index_name, const char *attribute_name);

@@ -67,7 +67,6 @@ void TupleSchema::from_table(const Table *table, TupleSchema &schema) {
   const char *table_name = table->name();
   const TableMeta &table_meta = table->table_meta();
   const int field_num = table_meta.field_num();
-  LOG_INFO("field_num %d",field_num);
   for (int i = 0; i < field_num; i++) {
     const FieldMeta *field_meta = table_meta.field(i);
     if (field_meta->visible()) {

@@ -14,6 +14,7 @@ See the Mulan PSL v2 for more details. */
 
 #include <stddef.h>
 #include <sstream>
+#include <string>
 #include "condition_filter.h"
 #include "record_manager.h"
 #include "common/log/log.h"
@@ -63,7 +64,7 @@ RC DefaultConditionFilter::init(Table &table, const Condition &condition)
   const TableMeta &table_meta = table.table_meta();
   ConDesc left;
   ConDesc right;
-
+  RC rc = RC::SUCCESS;
   AttrType type_left = UNDEFINED;
   AttrType type_right = UNDEFINED;
 
@@ -84,7 +85,27 @@ RC DefaultConditionFilter::init(Table &table, const Condition &condition)
     left.is_attr = false;
     left.value = condition.left_value.data;  // 校验type 或者转换类型
     type_left = condition.left_value.type;
-
+    if(type_left == DATES){
+      std::string date = static_cast<const char *>(left.value) ;
+      std::stringstream deserialize_stream;
+      deserialize_stream.clear();
+      deserialize_stream.str(date);
+      int cnt = 0;
+      std::string YY ;
+      std::string MM ;
+      std::string DD ;
+      std::string data;
+      while(std::getline(deserialize_stream, data,'-')){
+          //LOG_INFO("%s",data.c_str());
+        if(cnt == 0)  YY = data;
+        if(cnt == 1)  MM = data;
+        if(cnt == 2)  DD = data;
+        if(cnt == 3)  break;
+        cnt ++;
+      }
+      rc = Table::judge_record_date(atoi(YY.c_str()),atoi(MM.c_str()),atoi(DD.c_str()));
+      if(rc != RC::SUCCESS) return rc;
+    }
     left.attr_length = 0;
     left.attr_offset = 0;
   }
@@ -105,7 +126,27 @@ RC DefaultConditionFilter::init(Table &table, const Condition &condition)
     right.is_attr = false;
     right.value = condition.right_value.data;
     type_right = condition.right_value.type;
-
+    if(type_right == DATES){
+      std::string date = static_cast<const char *>(right.value) ;
+      std::stringstream deserialize_stream;
+      deserialize_stream.clear();
+      deserialize_stream.str(date);
+      int cnt = 0;
+      std::string YY ;
+      std::string MM ;
+      std::string DD ;
+      std::string data;
+      while(std::getline(deserialize_stream, data,'-')){
+          //LOG_INFO("%s",data.c_str());
+        if(cnt == 0)  YY = data;
+        if(cnt == 1)  MM = data;
+        if(cnt == 2)  DD = data;
+        if(cnt == 3)  break;
+        cnt ++;
+      }
+      rc = Table::judge_record_date(atoi(YY.c_str()),atoi(MM.c_str()),atoi(DD.c_str()));
+      if(rc != RC::SUCCESS) return rc;
+    }
     right.attr_length = 0;
     right.attr_offset = 0;
   }
@@ -120,7 +161,6 @@ RC DefaultConditionFilter::init(Table &table, const Condition &condition)
   if (type_left != type_right) {
     return RC::SCHEMA_FIELD_TYPE_MISMATCH;
   }
-
   return init(left, right, type_left, condition.comp);
 }
 
@@ -162,7 +202,7 @@ bool DefaultConditionFilter::filter(const Record &rec) const
       while(std::getline(deserialize_stream, data,'-')){
         //LOG_INFO("left%s",data.c_str());
         if(cnt == 0)  left_day += (atoi(data.c_str()) - 1970) * 365;
-        if(cnt == 1)  left_day += atoi(data.c_str()) * 30;
+        if(cnt == 1)  left_day += atoi(data.c_str()) * 31;
         if(cnt == 2)  left_day += atoi(data.c_str());
         if(cnt == 3)  break;
         cnt ++;
@@ -174,7 +214,7 @@ bool DefaultConditionFilter::filter(const Record &rec) const
       while(std::getline(deserialize_stream, data,'-')){
         //LOG_INFO("right%s",data.c_str());
         if(cnt == 0)  right_day += (atoi(data.c_str()) - 1970) * 365;
-        if(cnt == 1)  right_day += atoi(data.c_str()) * 30;
+        if(cnt == 1)  right_day += atoi(data.c_str()) * 31;
         if(cnt == 2)  right_day += atoi(data.c_str());
         if(cnt == 3)  break;
         cnt ++;

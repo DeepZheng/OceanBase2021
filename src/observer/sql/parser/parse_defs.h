@@ -24,10 +24,7 @@ See the Mulan PSL v2 for more details. */
 #define MAX_DATA 50
 
 //属性结构体
-typedef struct {
-  char *relation_name;   // relation name (may be NULL) 表名
-  char *attribute_name;  // attribute name              属性名
-} RelAttr;
+
 
 typedef enum {
   EQUAL_TO,     //"="     0
@@ -38,7 +35,15 @@ typedef enum {
   GREAT_THAN,   //">"     5
   NO_OP
 } CompOp;
-
+//聚合运算
+typedef enum{
+  NO_FUNC,MAX_FUNC,MIN_FUNC,COUNT_FUNC,AVG_FUNC
+} AggOp;
+typedef struct {
+  char *relation_name;   // relation name (may be NULL) 表名
+  char *attribute_name;  // attribute name              属性名
+  AggOp aggop;
+} RelAttr;
 //属性值类型
 typedef enum { UNDEFINED, CHARS, INTS, FLOATS ,DATES} AttrType;
 
@@ -68,6 +73,7 @@ typedef struct {
   char *    relations[MAX_NUM];     // relations in From clause
   size_t    condition_num;          // Length of conditions in Where clause
   Condition conditions[MAX_NUM];    // conditions in Where clause
+  //AggOp aggop;
 } Selects;
 
 // struct of insert
@@ -177,7 +183,7 @@ typedef struct Query {
 extern "C" {
 #endif  // __cplusplus
 
-void relation_attr_init(RelAttr *relation_attr, const char *relation_name, const char *attribute_name);
+void relation_attr_init(RelAttr *relation_attr, const char *relation_name, const char *attribute_name,AggOp aggop);
 void relation_attr_destroy(RelAttr *relation_attr);
 
 void value_init_integer(Value *value, int v);

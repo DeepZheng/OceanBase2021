@@ -26,6 +26,7 @@ struct ConDesc {
   int    attr_length; // 如果是属性，表示属性值长度
   int    attr_offset; // 如果是属性，表示在记录中的偏移量
   void * value;       // 如果是值类型，这里记录值的数据
+  AggOp aggop;        // 聚合运算类型
 };
 
 class ConditionFilter {
@@ -68,6 +69,7 @@ private:
   ConDesc  right_;
   AttrType attr_type_ = UNDEFINED;
   CompOp   comp_op_ = NO_OP;
+  AggOp    aggop = NO_FUNC;
 };
 
 class CompositeConditionFilter : public ConditionFilter {

@@ -42,6 +42,9 @@ typedef enum {
   NO_OP
 } CompOp;
 
+typedef enum{
+  NO_FUNC,MAX_FUNC,MIN_FUNC,COUNT_FUNC,AVG_FUNC
+} AggOp;
 //属性值类型
 typedef enum { chars, ints, floats ,dates } AttrType;
 //属性值
